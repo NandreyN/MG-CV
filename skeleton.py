@@ -4,11 +4,20 @@ from PIL import Image, ImageTk
 LMB_PRESS, GRAG_LMB_PRESSED, LMB_RELEASED = '<Button-1>', '<B1-Motion>', '<ButtonRelease-1>'
 
 class ImageProvider():
-    def __init__(self, image_src):
-        self.__img = image_src
+    IMAGE_SIZE = (500, 500)
+    IMAGE_CELLS = (40, 40)
 
-    def get_image(self):
-        return self.__img
+    def __init__(self):
+        self.__img = Image.new('RGB', self.IMAGE_CELLS, color='white')
+        self.per_cell_x = self.IMAGE_SIZE[0] // self.IMAGE_CELLS[0]
+        self.per_cell_y = self.IMAGE_SIZE[1] // self.IMAGE_CELLS[1]
+
+    def get_image(self, resize=True):
+        return (
+            self.__img.resize(self.IMAGE_SIZE, Image.NEAREST)
+            if resize else
+            self.__img
+        )
 
 
 class LabFrame():
@@ -64,4 +73,3 @@ class LabFrame():
         
 def get_frame(image_keeper):
     return LabFrame(image_keeper, tkinter.Tk())
-
