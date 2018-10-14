@@ -2,8 +2,20 @@ import tkinter
 from PIL import Image, ImageTk
 
 LMB_PRESS, GRAG_LMB_PRESSED, LMB_RELEASED = '<Button-1>', '<B1-Motion>', '<ButtonRelease-1>'
+
+class ImageProvider():
+    def __init__(self, image_src):
+        self.__img = image_src
+
+    def get_image(self):
+        return self.__img
+
+
 class LabFrame():
     def __init__(self, image_repo, master):
+        if not isinstance(image_repo, ImageProvider):
+            raise TypeError('image_repo must inherit ImageProvider class')
+
         self.__image_repo = image_repo
         image_pil = self.__extract_image()
         
@@ -22,7 +34,7 @@ class LabFrame():
             self.__image.size[1] // 2,
             image = self.__image_tk
         )
-        _canvas.image = self.__image_tk
+        self.__canvas.image = self.__image_tk
         
     
     def bind_handlers(self,keys_set, handle_funcs):
