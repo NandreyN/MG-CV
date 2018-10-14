@@ -1,4 +1,5 @@
 import tkinter
+import discrete_utils
 from PIL import Image, ImageTk
 
 LMB_PRESS, GRAG_LMB_PRESSED, LMB_RELEASED = '<Button-1>', '<B1-Motion>', '<ButtonRelease-1>'
@@ -9,8 +10,7 @@ class ImageProvider():
 
     def __init__(self):
         self.__img = Image.new('RGB', self.IMAGE_CELLS, color='white')
-        self.per_cell_x = self.IMAGE_SIZE[0] // self.IMAGE_CELLS[0]
-        self.per_cell_y = self.IMAGE_SIZE[1] // self.IMAGE_CELLS[1]
+        self.per_cell_x, self.per_cell_y = discrete_utils.abs_to_grid_ratio(self.IMAGE_CELLS, self.IMAGE_SIZE) 
 
     def get_image(self, resize=True):
         return (
@@ -18,6 +18,9 @@ class ImageProvider():
             if resize else
             self.__img
         )
+
+    def transform_coords_to_grid(self, absolute_coords):
+        return discrete_utils.absolute_to_grid((self.per_cell_x, self.per_cell_y), absolute_coords)
 
 
 class LabFrame():

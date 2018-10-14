@@ -4,6 +4,7 @@ from numpy.linalg import norm
 from math import sqrt, cos, sin, pi
 path.append('..')
 import skeleton
+import discrete_utils
 
 class CircleDrawer(skeleton.ImageProvider):
     def __init__(self):
@@ -25,21 +26,17 @@ class CircleDrawer(skeleton.ImageProvider):
 
 
     def set_centre(self, centre):
-        self.__centre = (centre[0] // self.per_cell_x,  centre[1] // self.per_cell_y)
+        self.__centre = self.transform_coords_to_grid(centre)
 
 
     def draw_circle_interactive(self, clicked_point):
-        clicked_point = (clicked_point[0] // self.per_cell_x, clicked_point[1] // self.per_cell_y)
+        clicked_point = self.transform_coords_to_grid(clicked_point)
         r = sqrt((clicked_point[0] - self.__centre[0]) ** 2 + (clicked_point[1] - self.__centre[1])**2)
         self.__draw_circle(self.__centre, int(r))
 
 
     def __draw_circle(self, centre, radius):
         
-
-        def transform_coordinates(to_transform):
-            return (self.__centre[0] + to_transform[0], self.__centre[1] + to_transform[1])
-
 
         def process_vars(d, u, v, x, y):
             return (
@@ -58,7 +55,7 @@ class CircleDrawer(skeleton.ImageProvider):
             d, u, v, x, y = process_vars(d, u, v, x, y)
 
         for p in points_queue:
-            self.__drawer.point(transform_coordinates(p), fill='black')
+            self.__drawer.point(discrete_utils.add(p, self.__centre), fill='black')
         
 
 if __name__ == '__main__':
