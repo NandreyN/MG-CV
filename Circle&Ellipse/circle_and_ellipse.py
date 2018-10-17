@@ -6,10 +6,9 @@ path.append('..')
 import skeleton
 import discrete_utils
 
-class CircleDrawer(skeleton.ImageProvider):
+class CircleDrawer(skeleton.GridImageProvider):
     def __init__(self):
         super().__init__()
-        self.__drawer = ImageDraw.Draw(self.get_image(resize=False))
         self.__points_queue = []
 
     def __symmetric_transform(self, point_to_rotate):
@@ -60,19 +59,18 @@ class CircleDrawer(skeleton.ImageProvider):
 
         self.__points_queue = list(map(lambda x : discrete_utils.add(x, self.__centre), self.__points_queue))
         for p in self.__points_queue:
-            self.__drawer.point(p, fill='black')
+            super().get_drawer().point(p, fill='black')
 
 
     def undo_last_call(self):
         if self.__points_queue:
             for p in self.__points_queue:
-                self.__drawer.point(p, fill='white')
+                super().get_drawer().point(p, fill='white')
 
 
-class EllipseDrawer(skeleton.ImageProvider):
+class EllipseDrawer(skeleton.GridImageProvider):
     def __init__(self):
         super().__init__()
-        self.__drawer = ImageDraw.Draw(self.get_image(resize=False))
         self.__points_queue = []
 
     def __symmetric_transform(self, point_to_rotate):
@@ -90,12 +88,12 @@ class EllipseDrawer(skeleton.ImageProvider):
 
 
     def init_drawing(self, centre, release_buff_points=True):
-        self.__centre = self.transform_coords_to_grid(centre)
+        self.__centre = super().transform_coords_to_grid(centre)
         if release_buff_points:
             self.__points_queue.clear()
 
     def draw_ellipse_interactive(self, clicked_point, undo_last):
-        clicked_point = self.transform_coords_to_grid(clicked_point)
+        clicked_point = super().transform_coords_to_grid(clicked_point)
         
         if undo_last:
             self.undo_last_call()
@@ -114,6 +112,7 @@ class EllipseDrawer(skeleton.ImageProvider):
         A2, B2 = A**2, B**2
         fa2, fb2 = 4 * A2, 4 * B2
         x, y, sigma = 0, B, 2 * B2 + A2 *(1 - 2*B)
+        self.__points_queue.clear()
 
         self.__points_queue.append((x, y))
         self.__points_queue.append((-x, -y))
@@ -153,29 +152,26 @@ class EllipseDrawer(skeleton.ImageProvider):
         
         self.__points_queue = list(map(lambda x : discrete_utils.add(x, centre), self.__points_queue))
         for p in self.__points_queue:
-            self.__drawer.point(p, fill='black')
+            super().get_drawer().point(p, fill='black')
 
 
     def undo_last_call(self):
         if self.__points_queue:
             for p in self.__points_queue:
-                self.__drawer.point(p, fill='white')
+                super().get_drawer().point(p, fill='white')
 
 
 def call_circle_drawer_window():
 
     def start_new_circle_handler(event):
-        global circle_drawer
         circle_drawer.init_drawing((event.x, event.y))
 
 
     def redraw_circle_border_on_moving(event):
-        global circle_drawer
         circle_drawer.draw_circle_interactive((event.x, event.y), True)
 
 
     def finish_circle_drawing(event):
-        global circle_drawer
         circle_drawer.draw_circle_interactive((event.x, event.y), False)
 
 
@@ -209,9 +205,10 @@ def call_ellipse_drawer_window():
     ellipse_drawer = EllipseDrawer()
     lab_frame = skeleton.get_frame('Ellipse', ellipse_drawer)
     lab_frame.bind_handlers(
-        keys_set=[skeleton.LMB_PRESS, skeleton.LMB_RELEASED],
+        keys_set=[skeleton.LMB_PRESS, skeleton.GRAG_LMB_PRESSED, skeleton.LMB_RELEASED],
         handle_funcs=[
             start_new_ellipse_handler ,
+            redraw_ellipse_border_on_moving,
             finish_ellipse_drawing
         ]
     )
