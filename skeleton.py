@@ -19,6 +19,10 @@ class ImageProvider():
             self.__img
         )
 
+    def undo_last_call(self):
+        # To override in successors
+        pass
+
     def transform_coords_to_grid(self, absolute_coords):
         return discrete_utils.absolute_to_grid((self.per_cell_x, self.per_cell_y), absolute_coords)
 
