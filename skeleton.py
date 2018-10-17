@@ -19,19 +19,16 @@ class ImageProvider():
             self.__img
         )
 
-    def undo_last_call(self):
-        # To override in successors
-        pass
-
     def transform_coords_to_grid(self, absolute_coords):
         return discrete_utils.absolute_to_grid((self.per_cell_x, self.per_cell_y), absolute_coords)
 
 
 class LabFrame():
-    def __init__(self, image_repo, master):
+    def __init__(self, frame_title, image_repo, master):
         if not isinstance(image_repo, ImageProvider):
             raise TypeError('image_repo must inherit ImageProvider class')
 
+        master.winfo_toplevel().title(frame_title)
         self.__image_repo = image_repo
         image_pil = self.__extract_image()
         
@@ -78,5 +75,5 @@ class LabFrame():
         tkinter.mainloop()
 
         
-def get_frame(image_keeper):
-    return LabFrame(image_keeper, tkinter.Tk())
+def get_frame(frame_title, image_keeper):
+    return LabFrame(frame_title, image_keeper, tkinter.Tk())
